@@ -6,6 +6,7 @@ import es.alvaroCDN1.tiendaPokemon.articulos.PokeBall;
 import es.alvaroCDN1.tiendaPokemon.excepciones.CantindadInvalidadException;
 import es.alvaroCDN1.tiendaPokemon.excepciones.DineroInsuficienteException;
 import es.alvaroCDN1.tiendaPokemon.excepciones.NoExisteArticuloException;
+import es.alvaroCDN1.tiendaPokemon.excepciones.NoExistePokemonException;
 import es.alvaroCDN1.tiendaPokemon.pokemon.Charmander;
 import es.alvaroCDN1.tiendaPokemon.pokemon.Pokemon;
 import es.alvaroCDN1.tiendaPokemon.articulos.Articulo;
@@ -95,19 +96,42 @@ public class TiendaPokemon {
      * @throws NoExisteArticuloException Si el articulo no existe
      */
     private Articulo obtenerArticulo(String nombreArticulo) throws NoExisteArticuloException {
-        Articulo articulo1 = null;
+        Articulo articuloADevolver = null;
 
         for (Articulo articulo : this.stock.keySet()) {
             if (articulo.getNombre().equalsIgnoreCase(nombreArticulo)) {
-                articulo1 = articulo;
+                articuloADevolver = articulo;
             }
         }
 
-        if (articulo1 == null) {
+        if (articuloADevolver == null) {
             throw new NoExisteArticuloException();
         }
 
-        return articulo1;
+        return articuloADevolver;
+    }
+
+    /**
+     * Obtiene un pokemon del 'stock' de pokemons
+     *
+     * @param nombrePokemon El nombre del pokemon que deseamos obtener
+     * @return El pokemon que buscamos
+     * @throws NoExistePokemonException En caso de que el pokemon que buscamos no exista o no este en 'stock'
+     */
+    private Pokemon obtenerPokemon(String nombrePokemon) throws NoExistePokemonException {
+        Pokemon pokemonADevolver = null;
+
+        for (Pokemon pokemon : this.stockPokemon.keySet()) {
+            if (pokemon.getNombre().equalsIgnoreCase(nombrePokemon)) {
+                pokemonADevolver = pokemon;
+            }
+        }
+
+        if (pokemonADevolver == null) {
+            throw new NoExistePokemonException();
+        }
+
+        return pokemonADevolver;
     }
 
     /**
@@ -167,6 +191,7 @@ public class TiendaPokemon {
                 break;
 
             case 2:
+                menuComprarPokemon();
                 break;
 
             case 3:
@@ -186,7 +211,7 @@ public class TiendaPokemon {
     }
 
     /**
-     * Metodo para generar el menu de "Comprar" y sus funciones
+     * Imprime el stock de los articulo y permite al usuario comprar articulos en 'stock'
      */
     private void menuComprar() {
         boolean finalCompra;
@@ -202,13 +227,13 @@ public class TiendaPokemon {
 
             Articulo articulo = null;
 
-            System.out.println("\n¿Que desea comprar? (Pokedolares: " + entrenadorEnLaTienda.getMonedero() + ')');
+            System.out.println("¿Que desea comprar? (Pokedolares: " + entrenadorEnLaTienda.getMonedero() + ')');
 
             boolean articuloCorrecto = false;
 
             while (!articuloCorrecto) {
                 imprimirStock();
-                System.out.println("(Nada o salir)");
+                System.out.println("(Si desea obtener ayuda escriba 'ayuda')");
 
                 try {
                     input = sc.nextLine();
@@ -217,6 +242,8 @@ public class TiendaPokemon {
                         finalCompra = true;
 
                         break;
+                    } else if (input.equalsIgnoreCase("ayuda")) {
+                        imprimirAyuda();
                     } else {
                         articulo = obtenerArticulo(input);
                     }
@@ -274,6 +301,87 @@ public class TiendaPokemon {
         } while (!finalCompra);
     }
 
+    /**
+     * Imprime la lista de pokemons en 'stock' y permite comprarlos
+     * (Solo se permite 1 pokemon de casa por cliente)
+     */
+    private void menuComprarPokemon() {
+        boolean finalCompra;
+
+        do {
+            finalCompra = false;
+
+            Scanner sc = new Scanner(System.in);
+
+            String input = "";
+
+            Pokemon pokemon = null;
+
+            System.out.println("¿Que pokemon desea comprar?");
+
+            if (this.stockPokemon.keySet().size() <= 0) {
+                finalCompra = true;
+
+                System.out.println("Lo siento, no nos quedan mas pokemon. Vuelva otro dia");
+
+                break;
+            } else {
+                boolean pokemonValido = false;
+
+                while (!pokemonValido) {
+                    imprimirStockPokemon();
+                    System.out.println("(Si desea obtener ayuda escriba 'ayuda')");
+
+                    input = sc.nextLine();
+
+                    if (input.equalsIgnoreCase("salir") || input.equalsIgnoreCase("nada")) {
+                        finalCompra = true;
+
+                        break;
+                    } else if (input.equalsIgnoreCase("ayuda")) {
+                        imprimirAyuda();
+                    } else {
+                        try {
+                            pokemon = obtenerPokemon(input);
+
+                            pokemonValido = true;
+                        } catch (NoExistePokemonException e) {
+                            System.out.println("No existe ese pokemon");
+                        }
+                    }
+                }
+
+                if (pokemon != null) {
+                    try {
+                        if (restarDinero(this.stockPokemon.get(pokemon))) {
+                            if (entrenadorEnLaTienda.anadirPokemon(pokemon)) {
+                                this.stockPokemon.remove(pokemon);
+
+                                System.out.println("Muchas gracias. En total seran " + this.stockPokemon.get(pokemon) +
+                                        " pokes.");
+                                System.out.println("¿Desea comprar algo mas?");
+
+                                input = sc.nextLine();
+
+                                if (input.equalsIgnoreCase("no")) {
+                                    finalCompra = true;
+                                }
+                            } else {
+                                System.out.println("Vaya, parece que tu equipo esta completo.");
+                            }
+                        }
+                    } catch (DineroInsuficienteException e) {
+                        System.out.println("Vaya, parece que no tienes dinero suficiente");
+                    }
+                }
+            }
+
+        } while (!finalCompra);
+    }
+
+    /**
+     * Imprime la lista de objetos del entrenador y permite venderlos
+     */
     private void menuVender() {
         boolean finalVenta;
 
@@ -298,6 +406,7 @@ public class TiendaPokemon {
                 break;
             } else {
                 System.out.println(entrenadorEnLaTienda.listarObjetos());
+                System.out.println("(Si desea obtener ayuda escriba 'ayuda')");
             }
 
             boolean objetoValido = false;
@@ -309,17 +418,21 @@ public class TiendaPokemon {
                     finalVenta = true;
 
                     break;
-                }
+                } else if (input.equalsIgnoreCase("ayuda")) {
+                    imprimirAyuda();
 
-                try {
-                    objeto = entrenadorEnLaTienda.obtenerObjeto(input);
+                    break;
+                } else {
+                    try {
+                        objeto = entrenadorEnLaTienda.obtenerObjeto(input);
 
-                    objetoValido = true;
+                        objetoValido = true;
 
-                    System.out.println(objeto.getNombre() + " perfecto. ¿Cuantas unidades deseas vender?");
+                        System.out.println(objeto.getNombre() + " perfecto. ¿Cuantas unidades deseas vender?");
 
-                } catch (NoExisteArticuloException e) {
-                    System.out.println("El articulo no existe.\nSeleccione un articulo valido.\n");
+                    } catch (NoExisteArticuloException e) {
+                        System.out.println("El articulo no existe.\nSeleccione un articulo valido.\n");
+                    }
                 }
             }
 
@@ -349,6 +462,8 @@ public class TiendaPokemon {
                 if (input.equalsIgnoreCase("si")) {
                     entrenadorEnLaTienda.retirarObjeto(objeto, cantidad);
                     entrenadorEnLaTienda.setMonedero(precioVenta);
+
+                    anadirArticulo(objeto, cantidad);
                 }
 
                 System.out.println("¿Desea vender algo mas?");
@@ -392,6 +507,30 @@ public class TiendaPokemon {
             i++;
         }
 
+        System.out.println();
+    }
+
+    /**
+     * Imprime el 'stock' actual de pokemon
+     */
+    private void imprimirStockPokemon() {
+        int i = 1;
+
+        for (Pokemon pokemon : this.stockPokemon.keySet()) {
+            System.out.println(i + ". " + pokemon.getNombre() + " lvl." + pokemon.getNivel() +
+                    " Precio: " + this.stockPokemon.get(pokemon));
+            i++;
+        }
+
+        System.out.println();
+    }
+
+    /**
+     * Imprime instrucciones sobre como introducir datos para comprar/vender un articulo/objeto
+     */
+    private void imprimirAyuda() {
+        System.out.println("Para seleccionar un articulo/pokemon escriba su nombre.");
+        System.out.println("Si desea salir, escriba 'nada' o 'salir'.");
         System.out.println();
     }
 

@@ -10,6 +10,9 @@ import es.alvaroCDN1.tiendaPokemon.pokemon.Pokemon;
 
 import java.util.HashMap;
 
+/**
+ * Clase que representar un 'Entrenador Pokemon'
+ */
 public class Entrenador {
     private HashMap<Articulo, Integer> bolsilloPocion;
     private HashMap<Articulo, Integer> bolsilloMedicina;
@@ -17,6 +20,7 @@ public class Entrenador {
 
     private final int CAPACIDAD_MAX_MOCHILA = 42;
     private int monedero;
+    private int next; // Comprueba la siguiente posicion diponible en el equipo de Pokemon
 
     private Pokemon[] equipoPokemon;
 
@@ -32,6 +36,7 @@ public class Entrenador {
         this.monedero = 900000;
 
         this.equipoPokemon = new Pokemon[3];
+        this.next = 0;
     }
 
     public String getNombre() {
@@ -103,7 +108,7 @@ public class Entrenador {
     /**
      * Anade un objeto al bolsillo correpondiente, simulando una mochila
      *
-     * @param objeto El objeto que deseamos anadir al bolsillo
+     * @param objeto   El objeto que deseamos anadir al bolsillo
      * @param cantidad La cantidad de ese objeto que vamos a anadir
      * @return <code>true</code> si se ha anadido correctamente y <code>false</code> si no
      */
@@ -142,7 +147,7 @@ public class Entrenador {
      * Retira un objeto de la "mochila"
      * Si la cantidad del objeto es 0, el objeto es removido del bolsillo
      *
-     * @param objeto El objeto que deseamos retirar del bolsillo
+     * @param objeto   El objeto que deseamos retirar del bolsillo
      * @param cantidad La cantidad del mismo que vamos a retirar
      */
     public void retirarObjeto(Articulo objeto, int cantidad) {
@@ -271,5 +276,19 @@ public class Entrenador {
         }
 
         return articulo;
+    }
+
+    public boolean anadirPokemon(Pokemon pokemon) {
+        boolean anadido = false;
+
+        if (next < this.equipoPokemon.length) {
+            this.equipoPokemon[next] = pokemon;
+
+            this.next++;
+
+            anadido = true;
+        }
+
+        return anadido;
     }
 }
