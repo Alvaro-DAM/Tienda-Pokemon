@@ -9,6 +9,8 @@ import es.alvaroCDN1.tiendaPokemon.excepciones.NoExisteArticuloException;
 import es.alvaroCDN1.tiendaPokemon.pokemon.Pokemon;
 
 import java.util.HashMap;
+import java.util.InputMismatchException;
+import java.util.Scanner;
 
 /**
  * Clase que representar un 'Entrenador Pokemon'
@@ -29,7 +31,7 @@ public class Entrenador {
     public Entrenador(String nombre) {
         this.nombre = nombre;
 
-        this.bolsilloPocion = new HashMap<Articulo, Integer>();
+        this.bolsilloPocion = new HashMap<>();
         this.bolsilloMedicina = new HashMap<>();
         this.bolsilloPokeball = new HashMap<>();
 
@@ -59,6 +61,22 @@ public class Entrenador {
         return this.bolsilloPokeball.get(pokeBall);
     }
 
+    public int getCantidadTotalObjetos() {
+        int cantidad = 0;
+
+        for (Articulo objeto : this.bolsilloPocion.keySet()) {
+            cantidad += getCantidadPocion((Pocion) objeto);
+        }
+        for (Articulo objeto : this.bolsilloPokeball.keySet()) {
+            cantidad += getCantidadPokeball((PokeBall) objeto);
+        }
+        for (Articulo objeto : this.bolsilloMedicina.keySet()) {
+            cantidad += getCantidadMedicina((Medicina) objeto);
+        }
+
+        return cantidad;
+    }
+
     public void setMonedero(int dinero) {
         this.monedero += dinero;
     }
@@ -81,7 +99,7 @@ public class Entrenador {
      * @param objeto   El objeto del cual queremos comprobar si la cantidad es correta
      * @param cantidad La cantidad a comprobar
      * @return <code>true</code> si la cantidad es correcta y <code>false</code> en caso contrario
-     * @throws CantindadInvalidadException
+     * @throws CantindadInvalidadException Si la cantidad introducida no es valida
      */
     public boolean comprobarCantidad(Articulo objeto, int cantidad) throws CantindadInvalidadException {
         boolean cantidadCorrecta = false;
@@ -168,22 +186,6 @@ public class Entrenador {
         }
     }
 
-    public int getCantidadTotalObjetos() {
-        int cantidad = 0;
-
-        for (Articulo objeto : this.bolsilloPocion.keySet()) {
-            cantidad += getCantidadPocion((Pocion) objeto);
-        }
-        for (Articulo objeto : this.bolsilloPokeball.keySet()) {
-            cantidad += getCantidadPokeball((PokeBall) objeto);
-        }
-        for (Articulo objeto : this.bolsilloMedicina.keySet()) {
-            cantidad += getCantidadMedicina((Medicina) objeto);
-        }
-
-        return cantidad;
-    }
-
     public boolean mochilaLlena() {
         return getCantidadTotalObjetos() >= CAPACIDAD_MAX_MOCHILA;
     }
@@ -240,6 +242,22 @@ public class Entrenador {
     }
 
     /**
+     * Lista todos los pokemon que se encuentran en el equipo
+     *
+     * @return Los pokemon que se encuentran actualmente en el equipo
+     */
+    public String listarEquipoPokemon() {
+        StringBuilder equipoPokemon = new StringBuilder();
+
+        for (int i = 0; i < this.equipoPokemon.length; i++) {
+            equipoPokemon.append(i + ". " + this.equipoPokemon[i].getNombre() + ' ');
+            equipoPokemon.append("lvl." + this.equipoPokemon[i].getNivel() + '\n');
+        }
+
+        return equipoPokemon.toString();
+    }
+
+    /**
      * Obtiene un articulo de los bolsillos de la mochila
      *
      * @param nombreArticulo El nombre del articulo que queremos obtener
@@ -278,6 +296,60 @@ public class Entrenador {
         return articulo;
     }
 
+    /**
+     * Permite revisar los objetos en la mochila.
+     * Tambien se permite revisar los detalles de los objetos y tirar alguno si se desea
+     */
+    public void revisarMochila() {
+        Scanner sc = new Scanner(System.in);
+
+        int opcion = -1;
+
+        if (listarObjetos().isBlank()) {
+            System.out.println("La mochila esta vacia.\n");
+        } else {
+            while (opcion != 0) {
+                System.out.println("Objetos:");
+                opcion = 0;
+
+                if (listarObjetos().isBlank()) {
+                    System.out.println("La mochila esta vacia.\n");
+                } else {
+                    System.out.println(listarObjetos());
+                    System.out.println("¿Que desea hacer?");
+                    System.out.println("1. Consultar detalles.");
+                    System.out.println("2. Tirar objeto.");
+                    System.out.println("0. Salir\n");
+
+                    try {
+                        opcion = sc.nextInt();
+
+                        switch (opcion) {
+                            case 0:
+                                continue;
+
+                            case 1:
+                                detallesObjeto();
+                                break;
+
+                            case 2:
+                                tirarObjeto();
+                                break;
+
+                            default:
+                                System.out.println("Opcion no valida");
+                                break;
+                        }
+
+                    } catch (InputMismatchException e) {
+                        System.out.println("Por favor, introduzca un numero");
+                        sc.next();
+                    }
+                }
+            }
+        }
+    }
+
     public boolean anadirPokemon(Pokemon pokemon) {
         boolean anadido = false;
 
@@ -290,5 +362,83 @@ public class Entrenador {
         }
 
         return anadido;
+    }
+
+    private void detallesObjeto() {
+        String nombreObjeto;
+
+        Articulo objeto = null;
+
+        boolean objetoCorrecto = false;
+
+        Scanner sc = new Scanner(System.in);
+
+        while (!objetoCorrecto) {
+            System.out.println("¿De que objeto deseas saber los detalles?");
+
+            try {
+                nombreObjeto = sc.nextLine();
+
+                objeto = obtenerObjeto(nombreObjeto);
+
+                objetoCorrecto = true;
+            } catch (NoExisteArticuloException e) {
+                System.out.println("No existe ese objeto.\n");
+            }
+        }
+
+        if (objeto != null) {
+            System.out.println(objeto);
+        }
+    }
+
+    private void tirarObjeto() {
+        String nombreObjeto;
+
+        Articulo objeto = null;
+
+        boolean objetoCorrecto = false;
+
+        Scanner sc = new Scanner(System.in);
+
+        while (!objetoCorrecto) {
+            System.out.println("¿Que objeto desea tirar?");
+
+            try {
+                nombreObjeto = sc.nextLine();
+
+                objeto = obtenerObjeto(nombreObjeto);
+
+                objetoCorrecto = true;
+            } catch (NoExisteArticuloException e) {
+                System.out.println("No existe ese objeto.\n");
+            }
+        }
+
+        if (objeto != null) {
+            int cantidad;
+
+            boolean cantidadCorrecta = false;
+
+            while (!cantidadCorrecta) {
+                System.out.println(objeto.getNombre() + " perfecto. ¿Cuantas unidades desea tirar?");
+
+                try {
+                    cantidad = sc.nextInt();
+
+                    if (comprobarCantidad(objeto, cantidad)) {
+                        cantidadCorrecta = true;
+
+                        retirarObjeto(objeto, cantidad);
+                    }
+
+                } catch (InputMismatchException e) {
+                    System.out.println("Por favor, introduzca un numero");
+                    sc.next();
+                } catch (CantindadInvalidadException ex) {
+                    System.out.println("La cantidad introducida no es valida");
+                }
+            }
+        }
     }
 }

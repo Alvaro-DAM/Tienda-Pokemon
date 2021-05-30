@@ -1,5 +1,9 @@
 package es.alvaroCDN1.tiendaPokemon.articulos;
 
+/**
+ * Clase que representa los articulos disponible en la tienda.
+ * En el caso del entrenador seran llamados 'objetos'
+ */
 public class Articulo {
     private String nombre;
     private String descripcion;
@@ -31,5 +35,14 @@ public class Articulo {
 
     public void setPrecio(int precio) {
         this.precio = precio;
+    }
+
+    @Override
+    public String toString() {
+
+        String string = "Nombre: " + getNombre() + "\n\t" +
+                getDescripcion() + '\n';
+
+        return string;
     }
 }

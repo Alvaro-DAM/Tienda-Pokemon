@@ -43,7 +43,7 @@ public class TiendaPokemon {
     public void start(Entrenador entrenador) {
         this.entrenadorEnLaTienda = entrenador;
 
-        rellanarStock();
+        rellenarStock();
 
         int opcion = -1;
         Scanner sc = new Scanner(System.in);
@@ -140,10 +140,10 @@ public class TiendaPokemon {
      * @param articulo El articulo del cual queremos comprobar si la cantidad es correta
      * @param cantidad La cantidad a comprobar
      * @return <code>true</code> si la cantidad es correcta y <code>false</code> en caso contrario
-     * @throws CantindadInvalidadException
+     * @throws CantindadInvalidadException Si la cantidad introducida no es valida
      */
     private boolean comprobarCantidad(Articulo articulo, int cantidad) throws CantindadInvalidadException {
-        boolean cantidadCorrecta = false;
+        boolean cantidadCorrecta;
 
         int stockArticulo = this.stock.get(articulo);
 
@@ -164,7 +164,7 @@ public class TiendaPokemon {
      * @throws DineroInsuficienteException si el pago no se ha realizado
      */
     private boolean restarDinero(int precio) throws DineroInsuficienteException {
-        boolean pagado = false;
+        boolean pagado;
 
         if (entrenadorEnLaTienda.getMonedero() > precio) {
             entrenadorEnLaTienda.setMonedero(precio - entrenadorEnLaTienda.getMonedero());
@@ -199,6 +199,7 @@ public class TiendaPokemon {
                 break;
 
             case 4:
+                entrenadorEnLaTienda.revisarMochila();
                 break;
 
             case 5:
@@ -219,11 +220,11 @@ public class TiendaPokemon {
         do {
             finalCompra = false;
 
-            int cantidad = 0;
+            int cantidad;
 
             Scanner sc = new Scanner(System.in);
 
-            String input = null;
+            String input;
 
             Articulo articulo = null;
 
@@ -313,7 +314,7 @@ public class TiendaPokemon {
 
             Scanner sc = new Scanner(System.in);
 
-            String input = "";
+            String input;
 
             Pokemon pokemon = null;
 
@@ -390,7 +391,7 @@ public class TiendaPokemon {
 
             Scanner sc = new Scanner(System.in);
 
-            String input = "";
+            String input;
 
             Articulo objeto = null;
 
@@ -537,11 +538,12 @@ public class TiendaPokemon {
     /**
      * Metodo que introduce un 'stock' preparado para la simulacion del programa
      */
-    private void rellanarStock() {
+    private void rellenarStock() {
         Medicina revivir = new Medicina("Revivir", "Revive a un pokemon debilitado.",
                 1500, "Debilitado");
 
         Pocion superPocion = new Pocion("Super Pocion", 700, 60);
+        superPocion.setDescripcion("Restaura 50 puntos de salud de la barra de vida de un Pokemon.");
 
         PokeBall lujoBall = new PokeBall("Lujo Ball", "Una pokeball para una ocasion especial.",
                 1000, 1);

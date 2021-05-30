@@ -9,4 +9,13 @@ public class Pocion extends Articulo {
         setPrecio(precio);
         this.hpRecupera = hpQueRecupera;
     }
+
+    @Override
+    public String toString() {
+
+        String string = super.toString() +
+                "Recupera: " + this.hpRecupera + "HP\n";
+
+        return string;
+    }
 }
