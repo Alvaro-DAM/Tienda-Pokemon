@@ -29,7 +29,9 @@ public class Charmander extends TipoFuego {
         descripcion.append("Nombre: " + getNombre() + '\n');
         descripcion.append("Entrenador original: " + getEntrenadorOriginal() + '\n');
         descripcion.append("Lvl: " + getNivel() + '\n');
-        descripcion.append("Tipo: " + getTipo() + '\n');
+        descripcion.append("Tipo: " + getTipo() + ' ');
+        descripcion.append(" (Debil contra: " + Arrays.toString(getDebilA()) + ", Fuerte contra: " +
+                Arrays.toString(getFuerteContra()) + ")\n");
         descripcion.append("Habilidad: " + getHabilidad() + '\n');
         descripcion.append("Peso: " + this.peso + ", Altura: " + this.altura + '\n');
         descripcion.append("Movimientos: " + '\n');

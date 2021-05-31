@@ -49,7 +49,8 @@ public class TiendaPokemon {
         Scanner sc = new Scanner(System.in);
 
         do {
-            System.out.println("Bienvenido/a " + entrenadorEnLaTienda.getNombre() + ". Elija una opcion\n");
+            System.out.println("Bienvenido/a " + entrenadorEnLaTienda.getNombre() + ". Elija una opcion:");
+            System.out.println("(Introduzca un numero del 0 al 5)\n");
 
             imprimirMenu();
 
@@ -203,6 +204,7 @@ public class TiendaPokemon {
                 break;
 
             case 5:
+                entrenadorEnLaTienda.revisarEquipoPokemon();
                 break;
 
             default:
@@ -228,12 +230,12 @@ public class TiendaPokemon {
 
             Articulo articulo = null;
 
-            System.out.println("¿Que desea comprar? (Pokedolares: " + entrenadorEnLaTienda.getMonedero() + ')');
-
             boolean articuloCorrecto = false;
 
             while (!articuloCorrecto) {
+                System.out.println("¿Que desea comprar? (Pokedolares: " + entrenadorEnLaTienda.getMonedero() + ")\n");
                 imprimirStock();
+
                 System.out.println("(Si desea obtener ayuda escriba 'ayuda')");
 
                 try {
@@ -244,7 +246,7 @@ public class TiendaPokemon {
 
                         break;
                     } else if (input.equalsIgnoreCase("ayuda")) {
-                        imprimirAyuda();
+                        imprimirAyudaCompraVenta();
                     } else {
                         articulo = obtenerArticulo(input);
                     }
@@ -318,19 +320,19 @@ public class TiendaPokemon {
 
             Pokemon pokemon = null;
 
-            System.out.println("¿Que pokemon desea comprar?");
-
             if (this.stockPokemon.keySet().size() <= 0) {
                 finalCompra = true;
 
-                System.out.println("Lo siento, no nos quedan mas pokemon. Vuelva otro dia");
+                System.out.println("Lo siento, no nos quedan mas pokemon. Vuelva otro dia.");
 
                 break;
             } else {
                 boolean pokemonValido = false;
 
                 while (!pokemonValido) {
+                    System.out.println("¿Que pokemon desea comprar?\n");
                     imprimirStockPokemon();
+
                     System.out.println("(Si desea obtener ayuda escriba 'ayuda')");
 
                     input = sc.nextLine();
@@ -340,14 +342,14 @@ public class TiendaPokemon {
 
                         break;
                     } else if (input.equalsIgnoreCase("ayuda")) {
-                        imprimirAyuda();
+                        imprimirAyudaCompraVenta();
                     } else {
                         try {
                             pokemon = obtenerPokemon(input);
 
                             pokemonValido = true;
                         } catch (NoExistePokemonException e) {
-                            System.out.println("No existe ese pokemon");
+                            System.out.println("No existe ese pokemon.\n");
                         }
                     }
                 }
@@ -356,11 +358,13 @@ public class TiendaPokemon {
                     try {
                         if (restarDinero(this.stockPokemon.get(pokemon))) {
                             if (entrenadorEnLaTienda.anadirPokemon(pokemon)) {
-                                this.stockPokemon.remove(pokemon);
 
                                 System.out.println("Muchas gracias. En total seran " + this.stockPokemon.get(pokemon) +
-                                        " pokes.");
-                                System.out.println("¿Desea comprar algo mas?");
+                                        " pokes.\n");
+
+                                this.stockPokemon.remove(pokemon);
+
+                                System.out.println("¿Desea comprar algo mas? (Si o no)");
 
                                 input = sc.nextLine();
 
@@ -420,7 +424,7 @@ public class TiendaPokemon {
 
                     break;
                 } else if (input.equalsIgnoreCase("ayuda")) {
-                    imprimirAyuda();
+                    imprimirAyudaCompraVenta();
 
                     break;
                 } else {
@@ -457,7 +461,7 @@ public class TiendaPokemon {
 
                 int precioVenta = (cantidad * objeto.getPrecio()) - (int) (cantidad * objeto.getPrecio() * 0.10);
 
-                System.out.println("Puedo pagarte " + precioVenta + ". ¿Te parece bien?");
+                System.out.println("Puedo pagarte " + precioVenta + ". ¿Te parece bien? (Si o no)");
                 input = sc.next();
 
                 if (input.equalsIgnoreCase("si")) {
@@ -494,18 +498,15 @@ public class TiendaPokemon {
      * Imprime el nombre y la cantidad de cada articulo que hay en 'stock'
      */
     private void imprimirStock() {
-        int i = 1;
 
         for (Articulo articulo : this.stock.keySet()) {
-            System.out.print(i + ". " + articulo.getNombre());
+            System.out.print(articulo.getNombre());
 
             if (getStockArticulo(articulo) == 0) {
                 System.out.print(" (AGOTADO)\n");
             } else {
                 System.out.print(". En Stock: " + getStockArticulo(articulo) + '\n');
             }
-
-            i++;
         }
 
         System.out.println();
@@ -515,12 +516,10 @@ public class TiendaPokemon {
      * Imprime el 'stock' actual de pokemon
      */
     private void imprimirStockPokemon() {
-        int i = 1;
 
         for (Pokemon pokemon : this.stockPokemon.keySet()) {
-            System.out.println(i + ". " + pokemon.getNombre() + " lvl." + pokemon.getNivel() +
+            System.out.println(pokemon.getNombre() + " lvl." + pokemon.getNivel() +
                     " Precio: " + this.stockPokemon.get(pokemon));
-            i++;
         }
 
         System.out.println();
@@ -529,8 +528,15 @@ public class TiendaPokemon {
     /**
      * Imprime instrucciones sobre como introducir datos para comprar/vender un articulo/objeto
      */
-    private void imprimirAyuda() {
+    private void imprimirAyudaCompraVenta() {
         System.out.println("Para seleccionar un articulo/pokemon escriba su nombre.");
+        System.out.println("Si el articulo/pokemon existe y no esta agotado (o dispone de suficientes cantidades" +
+                " en su mochila en caso de vender), debera introducir una cantidad. ");
+        System.out.println("Dicha cantidad debe ser mayor que 0 e igual o menor que la cantidad de stock" +
+                " disponible.\n");
+        System.out.println("\tSi esta comprando, el dinero se descontara automaticamente de su monedero.");
+        System.out.println("\tSi esta vendiendo, se le informara de cuanto dinero se le pagara y usted podra aceptar" +
+                " o rechazar (con un 'si' o 'no') la cantidad ofrecida.\n");
         System.out.println("Si desea salir, escriba 'nada' o 'salir'.");
         System.out.println();
     }

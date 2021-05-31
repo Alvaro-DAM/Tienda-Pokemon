@@ -8,9 +8,7 @@ import es.alvaroCDN1.tiendaPokemon.excepciones.CantindadInvalidadException;
 import es.alvaroCDN1.tiendaPokemon.excepciones.NoExisteArticuloException;
 import es.alvaroCDN1.tiendaPokemon.pokemon.Pokemon;
 
-import java.util.HashMap;
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Clase que representar un 'Entrenador Pokemon'
@@ -23,8 +21,9 @@ public class Entrenador {
     private final int CAPACIDAD_MAX_MOCHILA = 42;
     private int monedero;
     private int next; // Comprueba la siguiente posicion diponible en el equipo de Pokemon
+    public final int MAX_EQUIPO_POKEMON = 3;
 
-    private Pokemon[] equipoPokemon;
+    private ArrayList<Pokemon> equipoPokemon;
 
     private String nombre;
 
@@ -37,7 +36,7 @@ public class Entrenador {
 
         this.monedero = 900000;
 
-        this.equipoPokemon = new Pokemon[3];
+        this.equipoPokemon = new ArrayList<>();
         this.next = 0;
     }
 
@@ -102,7 +101,7 @@ public class Entrenador {
      * @throws CantindadInvalidadException Si la cantidad introducida no es valida
      */
     public boolean comprobarCantidad(Articulo objeto, int cantidad) throws CantindadInvalidadException {
-        boolean cantidadCorrecta = false;
+        boolean cantidadCorrecta;
 
         int stockArticulo = 0;
 
@@ -249,9 +248,9 @@ public class Entrenador {
     public String listarEquipoPokemon() {
         StringBuilder equipoPokemon = new StringBuilder();
 
-        for (int i = 0; i < this.equipoPokemon.length; i++) {
-            equipoPokemon.append(i + ". " + this.equipoPokemon[i].getNombre() + ' ');
-            equipoPokemon.append("lvl." + this.equipoPokemon[i].getNivel() + '\n');
+        for (Pokemon pokemon : this.equipoPokemon) {
+            equipoPokemon.append(pokemon.getNombre() + ' ');
+            equipoPokemon.append("lvl." + pokemon.getNivel() + '\n');
         }
 
         return equipoPokemon.toString();
@@ -309,14 +308,14 @@ public class Entrenador {
             System.out.println("La mochila esta vacia.\n");
         } else {
             while (opcion != 0) {
-                System.out.println("Objetos:");
+                System.out.println("Objetos en la mochila:");
                 opcion = 0;
 
                 if (listarObjetos().isBlank()) {
                     System.out.println("La mochila esta vacia.\n");
                 } else {
                     System.out.println(listarObjetos());
-                    System.out.println("¿Que desea hacer?");
+                    System.out.println("¿Que desea hacer? (Introduzca un numero del 0 al 2)\n");
                     System.out.println("1. Consultar detalles.");
                     System.out.println("2. Tirar objeto.");
                     System.out.println("0. Salir\n");
@@ -350,11 +349,67 @@ public class Entrenador {
         }
     }
 
+    public void revisarEquipoPokemon() {
+        boolean terminarRevision = false;
+        boolean pokemonCorrecto = false;
+
+        if (!this.equipoPokemon.isEmpty()) {
+            while (!terminarRevision) {
+                Scanner sc = new Scanner(System.in);
+
+                String input = "";
+
+                Pokemon pokemon = null;
+
+                do {
+                    System.out.println("¿Que pokemon desea consultar? (Escriba su nombre)\n");
+                    System.out.println(listarEquipoPokemon());
+
+                    System.out.println("(Si desea obtener ayuda escriba 'ayuda')");
+
+                    try {
+                        input = sc.nextLine();
+
+                        if (input.equalsIgnoreCase("nada") || input.equalsIgnoreCase("salir")) {
+                            break;
+                        } else if (input.equalsIgnoreCase("ayuda")) {
+                            System.out.println("Para consultar los datos de un pokemon," +
+                                    " simplemente escriba su nombre.");
+                            System.out.println("Si no desea seguir consultando, escriba 'salir'.\n");
+                        } else {
+                            for (Pokemon pokemonAComparar : this.equipoPokemon) {
+                                if (input.equalsIgnoreCase(pokemonAComparar.getNombre())) {
+                                    pokemon = pokemonAComparar;
+                                    pokemonCorrecto = true;
+                                }
+                            }
+                        }
+                    } catch (ArrayIndexOutOfBoundsException | NullPointerException e) {
+                        System.out.println("El pokemon que buscas no esta. Selecciona otro pokemon.\n");
+                    }
+                } while (!pokemonCorrecto);
+
+                if (pokemon != null) {
+                    System.out.println(pokemon);
+
+                    System.out.println("¿Desea consultar otro mas? (Si o no)");
+                    sc.next();
+
+                    if (input.equalsIgnoreCase("no")) {
+                        terminarRevision = true;
+                    }
+                }
+            }
+        } else {
+            System.out.println("Aun no tiene pokemon en su equipo.\n");
+        }
+    }
+
     public boolean anadirPokemon(Pokemon pokemon) {
         boolean anadido = false;
 
-        if (next < this.equipoPokemon.length) {
-            this.equipoPokemon[next] = pokemon;
+        if (next < MAX_EQUIPO_POKEMON) {
+            this.equipoPokemon.add(pokemon);
 
             this.next++;
 
@@ -374,7 +429,7 @@ public class Entrenador {
         Scanner sc = new Scanner(System.in);
 
         while (!objetoCorrecto) {
-            System.out.println("¿De que objeto deseas saber los detalles?");
+            System.out.println("¿De que objeto deseas saber los detalles? (Escriba su nombre)");
 
             try {
                 nombreObjeto = sc.nextLine();
@@ -402,7 +457,7 @@ public class Entrenador {
         Scanner sc = new Scanner(System.in);
 
         while (!objetoCorrecto) {
-            System.out.println("¿Que objeto desea tirar?");
+            System.out.println("¿Que objeto desea tirar? (Escriba su nombre) ");
 
             try {
                 nombreObjeto = sc.nextLine();
@@ -421,7 +476,7 @@ public class Entrenador {
             boolean cantidadCorrecta = false;
 
             while (!cantidadCorrecta) {
-                System.out.println(objeto.getNombre() + " perfecto. ¿Cuantas unidades desea tirar?");
+                System.out.println(objeto.getNombre() + " perfecto. ¿Cuantas unidades desea tirar? (Escriba una cantidad usando numeros)");
 
                 try {
                     cantidad = sc.nextInt();
@@ -433,10 +488,10 @@ public class Entrenador {
                     }
 
                 } catch (InputMismatchException e) {
-                    System.out.println("Por favor, introduzca un numero");
+                    System.out.println("Por favor, introduzca un numero.");
                     sc.next();
                 } catch (CantindadInvalidadException ex) {
-                    System.out.println("La cantidad introducida no es valida");
+                    System.out.println("La cantidad introducida no es valida.");
                 }
             }
         }

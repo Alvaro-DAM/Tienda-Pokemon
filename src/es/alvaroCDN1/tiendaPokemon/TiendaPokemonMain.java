@@ -1,19 +1,21 @@
 package es.alvaroCDN1.tiendaPokemon;
 
-import es.alvaroCDN1.tiendaPokemon.articulos.Articulo;
-
-import java.util.HashMap;
 import java.util.Scanner;
 
 public class TiendaPokemonMain {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        String nombreEntrenador = "";
+        String nombreEntrenador;
+        System.out.println("Bienvenido a la tienda pokemon. ¿Como se llama?");
 
         do {
-            System.out.println("Bienvenido a la tienda pokemon. ¿Como se llama?");
             nombreEntrenador = sc.nextLine();
+
+            if (nombreEntrenador.isBlank()) {
+                System.out.println("Por favor, debe introducir un nombre.\n");
+            }
+
         } while (nombreEntrenador.isBlank());
 
         new TiendaPokemon().start(new Entrenador(nombreEntrenador));

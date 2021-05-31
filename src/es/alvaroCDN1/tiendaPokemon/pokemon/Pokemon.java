@@ -1,5 +1,7 @@
 package es.alvaroCDN1.tiendaPokemon.pokemon;
 
+import es.alvaroCDN1.tiendaPokemon.Entrenador;
+
 public class Pokemon {
     private String nombre;
     private String tipo;
@@ -55,6 +57,19 @@ public class Pokemon {
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Numero maximo de movimientos alcanzado");
         }
+    }
+
+    protected void setEntrenadorOriginal(Entrenador entrenadorOriginal) {
+        if (!this.entrenadorOriginal.isBlank()) {
+            this.entrenadorOriginal = entrenadorOriginal.getNombre();
+        }
+    }
+
+    @Override
+    public String toString() {
+        String string = "Nombre: " + this.nombre + '\n';
+
+        return string;
     }
 
 }
