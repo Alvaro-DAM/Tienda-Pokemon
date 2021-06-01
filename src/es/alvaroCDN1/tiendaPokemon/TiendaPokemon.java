@@ -10,6 +10,8 @@ import es.alvaroCDN1.tiendaPokemon.excepciones.NoExistePokemonException;
 import es.alvaroCDN1.tiendaPokemon.pokemon.Charmander;
 import es.alvaroCDN1.tiendaPokemon.pokemon.Pokemon;
 import es.alvaroCDN1.tiendaPokemon.articulos.Articulo;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.InputMismatchException;
@@ -27,6 +29,8 @@ public class TiendaPokemon {
 
     private Entrenador entrenadorEnLaTienda;
 
+    private static final Logger logger = LogManager.getLogger(TiendaPokemon.class.getName());
+
     /**
      * Constructor de la clase 'Tienda Pokemon'
      */
@@ -43,12 +47,17 @@ public class TiendaPokemon {
     public void start(Entrenador entrenador) {
         this.entrenadorEnLaTienda = entrenador;
 
+        logger.info("El usuario ha accedido al menu principal.");
+
         rellenarStock();
 
         int opcion = -1;
         Scanner sc = new Scanner(System.in);
 
         do {
+            logger.info("El usuario esta en el menu principal.");
+            logger.info("Esperando a que elija una opcion.");
+
             System.out.println("Bienvenido/a " + entrenadorEnLaTienda.getNombre() + ". Elija una opcion:");
             System.out.println("(Introduzca un numero del 0 al 5)\n");
 
@@ -56,13 +65,19 @@ public class TiendaPokemon {
 
             try {
                 opcion = sc.nextInt();
+
+                logger.info("Ha seleccionado la opcion: " + opcion);
                 opcion(opcion);
             } catch (InputMismatchException e) {
+                logger.error("El usuario no ha introducido un numero.");
+
                 System.out.println("Por favor, introduzca una opcion valida (0 a 5).\n");
                 sc.next();
             }
 
         } while (opcion != 0);
+
+        logger.info("Saliendo del menu principal.");
     }
 
     /**
@@ -188,26 +203,38 @@ public class TiendaPokemon {
                 break;
 
             case 1:
+                logger.info("Accediendo al menu de compra de articulos.");
+
                 menuComprar();
                 break;
 
             case 2:
+                logger.info("Accediendo al menu de compra de pokemons.");
+
                 menuComprarPokemon();
                 break;
 
             case 3:
+                logger.info("Accediendo al menu de venta de articulos.");
+
                 menuVender();
                 break;
 
             case 4:
+                logger.info("Accediendo al menu de la mochila.");
+
                 entrenadorEnLaTienda.revisarMochila();
                 break;
 
             case 5:
+                logger.info("Accediendo al menu para revisar el equipo pokemon.");
+
                 entrenadorEnLaTienda.revisarEquipoPokemon();
                 break;
 
             default:
+                logger.warn("El usuario ha introducido una opcion no valida.");
+
                 System.out.println("Opcion no existente. Introduzca una opcion del 0 al 5\n");
                 break;
         }
@@ -233,6 +260,8 @@ public class TiendaPokemon {
             boolean articuloCorrecto = false;
 
             while (!articuloCorrecto) {
+                logger.info("Esperando que el usuario seleccione un articulo.");
+
                 System.out.println("¿Que desea comprar? (Pokedolares: " + entrenadorEnLaTienda.getMonedero() + ")\n");
                 imprimirStock();
 
@@ -242,17 +271,25 @@ public class TiendaPokemon {
                     input = sc.nextLine();
 
                     if (input.equalsIgnoreCase("salir") || input.equalsIgnoreCase("nada")) {
+                        logger.info("El usuario ha introducido" + input);
+
                         finalCompra = true;
 
                         break;
                     } else if (input.equalsIgnoreCase("ayuda")) {
+                        logger.info("Se ha solicitado ayuda. Imprimiendo ayuda.");
+
                         imprimirAyudaCompraVenta();
                     } else {
+                        logger.info("Se ha seleccionado el articulo: " + input + '.');
+
                         articulo = obtenerArticulo(input);
                     }
 
                     articuloCorrecto = true;
                 } catch (NoExisteArticuloException ex) {
+                    logger.error("El usuario ha seleccionado un articulo invalido.");
+
                     System.out.println("El articulo no existe.\nSeleccione un articulo.\n");
                 }
             }
@@ -264,15 +301,24 @@ public class TiendaPokemon {
 
                 while (!cantidadCorrecta) {
                     try {
+                        logger.info("Esperando a que introduzca una cantidad.");
+
                         cantidad = sc.nextInt();
                         if (comprobarCantidad(articulo, cantidad)) {
+                            logger.info("El usuario ha pedido " + cantidad + ' ' + articulo.getNombre());
+
                             cantidadCorrecta = true;
 
                             if (!entrenadorEnLaTienda.mochilaLlena()) {
                                 if (entrenadorEnLaTienda.anadirObjeto(articulo, cantidad)) {
                                     if (restarDinero(articulo.getPrecio() * cantidad)) {
+                                        logger.info("Se ha añadido el articulo a la mochila.");
+
                                         System.out.println("Muchas gracias. En total seran " +
                                                 (articulo.getPrecio() * cantidad) + " pokes.");
+
+                                        logger.info("Se ha descontado " + (articulo.getPrecio() * cantidad)
+                                                + " del monedero del usuario");
 
                                         this.stock.put(articulo, getStockArticulo(articulo) - cantidad);
 
@@ -280,28 +326,44 @@ public class TiendaPokemon {
                                         input = sc.next();
 
                                         if (input.equalsIgnoreCase("No")) {
+                                            logger.info("El usuario no desea comprar mas.");
+
                                             finalCompra = true;
+                                        } else {
+                                            logger.info("El usuario sigue comprando.");
                                         }
                                     }
                                 }
                             } else {
+                                logger.warn("No se ha añadido el articulo. La mochila esta llena.");
+
                                 System.out.println("Oh vaya, tienes la mochila llena.");
                             }
                         }
                     } catch (CantindadInvalidadException e) {
+                        logger.error("El usuario ha introducido una cantidad incorrecta.");
+
                         System.out.println("La cantidad introducida no es valida. Introduce una cantidad validad");
                     } catch (InputMismatchException ex) {
+                        logger.error("El usuario no ha introducido un numero.");
+
                         System.out.println("Por favor introduzca un numero.");
                         sc.next();
                     } catch (DineroInsuficienteException exc) {
+                        logger.warn("El usuario no tiene suficiente dinero");
+
                         System.out.println("Oh vaya, parece que no tienes dinero suficiente");
                     }
                 }
             } else if (articulo != null && this.stock.get(articulo) <= 0) {
+                logger.warn("El articulo seleccionado esta agotado.");
+
                 System.out.println("El articulo esta agotado");
             }
 
         } while (!finalCompra);
+
+        logger.info("Saliendo del menu de compra de articulos.");
     }
 
     /**
@@ -321,6 +383,8 @@ public class TiendaPokemon {
             Pokemon pokemon = null;
 
             if (this.stockPokemon.keySet().size() <= 0) {
+                logger.warn("No quedan pokemons que comprar.");
+
                 System.out.println("Lo siento, no nos quedan mas pokemon. Vuelva otro dia.\n");
 
                 break;
@@ -328,6 +392,8 @@ public class TiendaPokemon {
                 boolean pokemonValido = false;
 
                 while (!pokemonValido) {
+                    logger.info("Esperando a que seleccione un pokemon.");
+
                     System.out.println("¿Que pokemon desea comprar?\n");
                     imprimirStockPokemon();
 
@@ -336,17 +402,25 @@ public class TiendaPokemon {
                     input = sc.nextLine();
 
                     if (input.equalsIgnoreCase("salir") || input.equalsIgnoreCase("nada")) {
+                        logger.info("El usuario ha introducido" + input);
+
                         finalCompra = true;
 
                         break;
                     } else if (input.equalsIgnoreCase("ayuda")) {
+                        logger.info("Se ha solicitado ayuda. Imprimiendo ayuda.");
+
                         imprimirAyudaCompraVenta();
                     } else {
+                        logger.info("Se ha seleccionado el pokemon: " + input);
+
                         try {
                             pokemon = obtenerPokemon(input);
 
                             pokemonValido = true;
                         } catch (NoExistePokemonException e) {
+                            logger.error("El pokemon seleccionado no existe.");
+
                             System.out.println("No existe ese pokemon.\n");
                         }
                     }
@@ -356,12 +430,18 @@ public class TiendaPokemon {
                     try {
                         if (restarDinero(this.stockPokemon.get(pokemon))) {
                             if (entrenadorEnLaTienda.anadirPokemon(pokemon)) {
+                                logger.info("Se ha retirado " + this.stockPokemon.get(pokemon) +
+                                        " del monedero del usuario.");
+
+                                logger.info("Se ha añadido el pokemon " + pokemon.getNombre() +
+                                        "al equipo pokemon del usuario.");
 
                                 pokemon.setEntrenadorOriginal(this.entrenadorEnLaTienda);
 
                                 System.out.println("Muchas gracias. En total seran " + this.stockPokemon.get(pokemon) +
                                         " pokes.\n");
 
+                                logger.info("Se va a retirar 1 unidad del pokemon: " + pokemon.getNombre());
                                 this.stockPokemon.remove(pokemon);
 
                                 System.out.println("¿Desea comprar algo mas? (Si o no)");
@@ -369,19 +449,27 @@ public class TiendaPokemon {
                                 input = sc.nextLine();
 
                                 if (input.equalsIgnoreCase("no")) {
+                                    logger.info("El usuario no desea comprar mas.");
+
                                     finalCompra = true;
+                                } else {
+                                    logger.info("El usuario va a comprando.");
                                 }
                             } else {
                                 System.out.println("Vaya, parece que tu equipo esta completo.");
                             }
                         }
                     } catch (DineroInsuficienteException e) {
+                        logger.warn("El usuario no tiene suficiente dinero.");
+
                         System.out.println("Vaya, parece que no tienes dinero suficiente");
                     }
                 }
             }
 
         } while (!finalCompra);
+
+        logger.info("Saliendo del menu de compra de pokemon.");
     }
 
     /**
@@ -391,6 +479,8 @@ public class TiendaPokemon {
         boolean finalVenta;
 
         do {
+            logger.info("Esperando a que el usuario seleccione un objeto de su mochila");
+
             finalVenta = false;
 
             Scanner sc = new Scanner(System.in);
@@ -404,6 +494,8 @@ public class TiendaPokemon {
             System.out.println("¿Que objeto desea vender?\n");
 
             if (entrenadorEnLaTienda.listarObjetos().isBlank()) {
+                logger.warn("La mochila esya vacia.");
+
                 System.out.println("Todavia no hay objetos\n");
 
                 break;
@@ -416,6 +508,8 @@ public class TiendaPokemon {
 
             while (!objetoValido) {
                 input = sc.nextLine();
+
+                logger.info("El usuario ha seleccionado el objeto: " + input);
 
                 if (input.equalsIgnoreCase("salir") || input.equalsIgnoreCase("nada")) {
                     finalVenta = true;
@@ -434,6 +528,8 @@ public class TiendaPokemon {
                         System.out.println(objeto.getNombre() + " perfecto. ¿Cuantas unidades deseas vender?");
 
                     } catch (NoExisteArticuloException e) {
+                        logger.error("El objeto por el usuario seleccionado no existe.");
+
                         System.out.println("El articulo no existe.\nSeleccione un articulo valido.\n");
                     }
                 }
@@ -446,13 +542,19 @@ public class TiendaPokemon {
                     try {
                         cantidad = sc.nextInt();
 
+                        logger.info("El usuario ha introducido la cantidad: " + cantidad);
+
                         if (entrenadorEnLaTienda.comprobarCantidad(objeto, cantidad)) {
                             cantidadCorrecta = true;
                         }
                     } catch (InputMismatchException e) {
+                        logger.error("El usuario no ha introducido un numero.");
+
                         System.out.println("Por favor introduzca un numero");
                         sc.next();
                     } catch (CantindadInvalidadException ex) {
+                        logger.warn("El usuario ha introducido un cantidad invalida.");
+
                         System.out.println("La cantidad introducida no es valida. Introduce una cantidad validad");
                     }
                 }
@@ -460,24 +562,40 @@ public class TiendaPokemon {
                 int precioVenta = (cantidad * objeto.getPrecio()) - (int) (cantidad * objeto.getPrecio() * 0.10);
 
                 System.out.println("Puedo pagarte " + precioVenta + ". ¿Te parece bien? (Si o no)");
+
+                logger.info("Se le ofrece al usuario " + precioVenta + "por sus objetos.");
+
                 input = sc.next();
 
                 if (input.equalsIgnoreCase("si")) {
+                    logger.info("El usuario ha aceptado la cantidad ofrecida.");
+
                     entrenadorEnLaTienda.retirarObjeto(objeto, cantidad);
                     entrenadorEnLaTienda.setMonedero(precioVenta);
 
                     anadirArticulo(objeto, cantidad);
+
+                    logger.info("Se ha añadido x" + cantidad + "de \"" + objeto.getNombre() +
+                            "\" al stock de la tienda.");
+                } else {
+                    logger.info("El usuario no ha aceptado la cantidad ofrecida.");
                 }
 
                 System.out.println("¿Desea vender algo mas?");
                 input = sc.next();
 
                 if (input.equalsIgnoreCase("no")) {
+                    logger.info("El usuario no desea comprar mas.");
+
                     finalVenta = true;
+                } else {
+                    logger.info("El usuario va a seguir vendiendo.");
                 }
             }
 
         } while (!finalVenta);
+
+        logger.info("Saliendo del menu de venta.");
     }
 
     /**
@@ -559,5 +677,7 @@ public class TiendaPokemon {
         this.stock.put(lujoBall, 40);
 
         this.stockPokemon.put(charmander, 1000);
+
+        logger.info("Se ha rellenado el stock.");
     }
 }

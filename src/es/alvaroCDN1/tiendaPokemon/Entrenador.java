@@ -6,7 +6,10 @@ import es.alvaroCDN1.tiendaPokemon.articulos.Pocion;
 import es.alvaroCDN1.tiendaPokemon.articulos.PokeBall;
 import es.alvaroCDN1.tiendaPokemon.excepciones.CantindadInvalidadException;
 import es.alvaroCDN1.tiendaPokemon.excepciones.NoExisteArticuloException;
+import es.alvaroCDN1.tiendaPokemon.excepciones.NoExistePokemonException;
 import es.alvaroCDN1.tiendaPokemon.pokemon.Pokemon;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -27,6 +30,8 @@ public class Entrenador {
     private ArrayList<Pokemon> equipoPokemon;
 
     private String nombre;
+
+    private static final Logger logger = LogManager.getLogger(Entrenador.class.getName());
 
     public Entrenador(String nombre) {
         this.nombre = nombre;
@@ -228,14 +233,20 @@ public class Entrenador {
 
         if (comprobarSiPocion(objeto)) {
             if (getCantidadPocion((Pocion) objeto) <= 0) {
+                logger.info("Se ha retirado el objeto: " + objeto.getNombre());
+
                 this.bolsilloPocion.remove(objeto);
             }
         } else if (comprobarSiMedicina(objeto)) {
             if (getCantidadMedicina((Medicina) objeto) <= 0) {
+                logger.info("Se ha retirado el objeto: " + objeto.getNombre());
+
                 this.bolsilloMedicina.remove(objeto);
             }
         } else if (comprobarSiPokeball(objeto)) {
             if (getCantidadPokeball((PokeBall) objeto) <= 0) {
+                logger.info("Se ha retirado el objeto: " + objeto.getNombre());
+
                 this.bolsilloPokeball.remove(objeto);
             }
         }
@@ -362,6 +373,8 @@ public class Entrenador {
         int opcion = -1;
 
         if (listarObjetos().isBlank()) {
+            logger.info("La mochila esta vacia.");
+
             System.out.println("La mochila esta vacia.\n");
         } else {
             while (opcion != 0) {
@@ -369,6 +382,8 @@ public class Entrenador {
                 opcion = 0;
 
                 if (listarObjetos().isBlank()) {
+                    logger.info("La mochila esta vacia.");
+
                     System.out.println("La mochila esta vacia.\n");
                 } else {
                     System.out.println(listarObjetos());
@@ -377,8 +392,12 @@ public class Entrenador {
                     System.out.println("2. Tirar objeto.");
                     System.out.println("0. Salir\n");
 
+                    logger.info("Esperando a que el usuario selecciona una opcion.");
+
                     try {
                         opcion = sc.nextInt();
+
+                        logger.info("Ha seleccionado la opcion: " + opcion);
 
                         switch (opcion) {
                             case 0:
@@ -393,17 +412,23 @@ public class Entrenador {
                                 break;
 
                             default:
+                                logger.warn("EL usuario ha introducido una opcion no valida.");
+
                                 System.out.println("Opcion no valida");
                                 break;
                         }
 
                     } catch (InputMismatchException e) {
+                        logger.error("El usuario no ha introducido un numero.");
+
                         System.out.println("Por favor, introduzca un numero");
                         sc.next();
                     }
                 }
             }
         }
+
+        logger.info("Saliendo del menu de revisar la mochila.");
     }
 
     /**
@@ -417,7 +442,7 @@ public class Entrenador {
             while (!terminarRevision) {
                 Scanner sc = new Scanner(System.in);
 
-                String input = "";
+                String input;
 
                 Pokemon pokemon = null;
 
@@ -425,27 +450,37 @@ public class Entrenador {
                     System.out.println("¿Que pokemon desea consultar? (Escriba su nombre)\n");
                     System.out.println(listarEquipoPokemon());
 
+                    logger.info("Esperando a que el usuario seleccione un pokemon.");
+
                     System.out.println("(Si desea obtener ayuda escriba 'ayuda')");
 
                     input = sc.nextLine();
 
                     if (input.equalsIgnoreCase("salir")) {
+                        logger.info("se ha introducido: " + input);
+
                         terminarRevision = true;
 
                         break;
                     } else if (input.equalsIgnoreCase("ayuda")) {
+                        logger.info("Se ha introducido: " + input + ". Impriendo ayuda.");
+
                         System.out.println("Para consultar los datos de un pokemon," +
                                 " simplemente escriba su nombre.");
                         System.out.println("Si no desea seguir consultando, escriba 'salir'.\n");
                     } else {
                         try {
-                            for (Pokemon pokemonAComparar : this.equipoPokemon) {
-                                if (input.equalsIgnoreCase(pokemonAComparar.getNombre())) {
-                                    pokemon = pokemonAComparar;
-                                    pokemonCorrecto = true;
-                                }
-                            }
-                        } catch (ArrayIndexOutOfBoundsException | NullPointerException e) {
+                            pokemon = obtenerPokemon(input);
+
+                            pokemonCorrecto = true;
+
+                            System.out.println(pokemon);
+
+                            logger.info("Se ha consultado los detalles del pokemon: " + pokemon.getNombre());
+                        } catch (ArrayIndexOutOfBoundsException | NullPointerException |
+                                NoExistePokemonException e) {
+                            logger.error("El usuario ha introducido un pokemon incorrecto o inexistente.");
+
                             System.out.println("El pokemon que buscas no esta. Selecciona otro pokemon.\n");
                         }
                     }
@@ -459,13 +494,19 @@ public class Entrenador {
                     sc.next();
 
                     if (input.equalsIgnoreCase("no")) {
+                        logger.info("El usuario no desea consultar ningun pokemon mas.");
+
                         terminarRevision = true;
+                    } else {
+                        logger.info("El usuario desea consultar mas pokemons.");
                     }
                 }
             }
         } else {
             System.out.println("Aun no tiene pokemon en su equipo.\n");
         }
+
+        logger.info("Saliendo del menu de revisar pokemons.");
     }
 
     /**
@@ -487,6 +528,29 @@ public class Entrenador {
     }
 
     /**
+     * Devuelve un pokemon del equipo pokemon
+     *
+     * @param nombrePokemon EL nombre del pokemon que buscamos
+     * @return El pokemon que buscamos existente en el equipo pokemon
+     * @throws NoExistePokemonException Si el pokemon no existe
+     */
+    private Pokemon obtenerPokemon(String nombrePokemon) throws NoExistePokemonException {
+        Pokemon pokemon = null;
+
+        for (Pokemon pokemonAComparar : this.equipoPokemon) {
+            if (nombrePokemon.equalsIgnoreCase(pokemonAComparar.getNombre())) {
+                pokemon = pokemonAComparar;
+            }
+        }
+
+        if (pokemon == null) {
+            throw new NoExistePokemonException();
+        }
+
+        return pokemon;
+    }
+
+    /**
      * Sub-menu que permite revisar los detalles de un objeto almacenado en la mochila
      */
     private void detallesObjeto() {
@@ -501,18 +565,26 @@ public class Entrenador {
         while (!objetoCorrecto) {
             System.out.println("¿De que objeto deseas saber los detalles? (Escriba su nombre)");
 
+            logger.info("Esperando a que seleccione un objeto.");
+
             try {
                 nombreObjeto = sc.nextLine();
+
+                logger.info("Se ha seleccionado el objeto: " + nombreObjeto);
 
                 objeto = obtenerObjeto(nombreObjeto);
 
                 objetoCorrecto = true;
             } catch (NoExisteArticuloException e) {
+                logger.error("El objeto seleccionado no existe.");
+
                 System.out.println("No existe ese objeto.\n");
             }
         }
 
         if (objeto != null) {
+            logger.info("Imprimiendo los detalles del objeto: " + objeto.getNombre());
+
             System.out.println(objeto);
         }
     }
@@ -532,13 +604,19 @@ public class Entrenador {
         while (!objetoCorrecto) {
             System.out.println("¿Que objeto desea tirar? (Escriba su nombre) ");
 
+            logger.info("Esperando a que seleccione un objeto.");
+
             try {
                 nombreObjeto = sc.nextLine();
+
+                logger.info("Se ha seleccionado el objeto: " + nombreObjeto);
 
                 objeto = obtenerObjeto(nombreObjeto);
 
                 objetoCorrecto = true;
             } catch (NoExisteArticuloException e) {
+                logger.error("El objeto seleccionado no existe.");
+
                 System.out.println("No existe ese objeto.\n");
             }
         }
@@ -551,19 +629,27 @@ public class Entrenador {
             while (!cantidadCorrecta) {
                 System.out.println(objeto.getNombre() + " perfecto. ¿Cuantas unidades desea tirar? (Escriba una cantidad usando numeros)");
 
+                logger.info("Esperando a que introduzca una cantidad.");
+
                 try {
                     cantidad = sc.nextInt();
 
                     if (comprobarCantidad(objeto, cantidad)) {
                         cantidadCorrecta = true;
 
+                        logger.info("El usuario va a tirar x" + cantidad + "de: " + objeto.getNombre());
+
                         retirarObjeto(objeto, cantidad);
                     }
 
                 } catch (InputMismatchException e) {
+                    logger.error("El usuario no ha introducido un numero.");
+
                     System.out.println("Por favor, introduzca un numero.");
                     sc.next();
                 } catch (CantindadInvalidadException ex) {
+                    logger.error("El usuario ha introducido una cantidad incorrecta.");
+
                     System.out.println("La cantidad introducida no es valida.");
                 }
             }
