@@ -1,6 +1,9 @@
 package es.alvaroCDN1.tiendaPokemon.excepciones;
 
-public class NoExistePokemonException extends Exception{
+/**
+ * Excepcion lanzada por metodos para indicar que no existe el pokemon que se busca
+ */
+public class NoExistePokemonException extends Exception {
 
     public NoExistePokemonException() {
 

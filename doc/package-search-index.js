@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"es.alvaroCDN1.tiendaPokemon"},{"l":"es.alvaroCDN1.tiendaPokemon.articulos"},{"l":"es.alvaroCDN1.tiendaPokemon.excepciones"},{"l":"es.alvaroCDN1.tiendaPokemon.pokemon"}];updateSearchResults();

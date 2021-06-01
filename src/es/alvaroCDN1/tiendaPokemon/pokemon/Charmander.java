@@ -3,11 +3,17 @@ package es.alvaroCDN1.tiendaPokemon.pokemon;
 import java.util.Arrays;
 import java.util.Random;
 
+/**
+ * Clase que representa a un pokemon 'Charmander'
+ */
 public class Charmander extends TipoFuego {
 
     private double peso;
     private double altura;
 
+    /**
+     * Constructor de la clase Charmander
+     */
     public Charmander() {
         super("Charmander", 5);
 

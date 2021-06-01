@@ -306,7 +306,7 @@ public class TiendaPokemon {
 
     /**
      * Imprime la lista de pokemons en 'stock' y permite comprarlos
-     * (Solo se permite 1 pokemon de casa por cliente)
+     * (Solo se permite 1 pokemon de cada por cliente)
      */
     private void menuComprarPokemon() {
         boolean finalCompra;
@@ -321,9 +321,7 @@ public class TiendaPokemon {
             Pokemon pokemon = null;
 
             if (this.stockPokemon.keySet().size() <= 0) {
-                finalCompra = true;
-
-                System.out.println("Lo siento, no nos quedan mas pokemon. Vuelva otro dia.");
+                System.out.println("Lo siento, no nos quedan mas pokemon. Vuelva otro dia.\n");
 
                 break;
             } else {
@@ -358,6 +356,8 @@ public class TiendaPokemon {
                     try {
                         if (restarDinero(this.stockPokemon.get(pokemon))) {
                             if (entrenadorEnLaTienda.anadirPokemon(pokemon)) {
+
+                                pokemon.setEntrenadorOriginal(this.entrenadorEnLaTienda);
 
                                 System.out.println("Muchas gracias. En total seran " + this.stockPokemon.get(pokemon) +
                                         " pokes.\n");
@@ -405,8 +405,6 @@ public class TiendaPokemon {
 
             if (entrenadorEnLaTienda.listarObjetos().isBlank()) {
                 System.out.println("Todavia no hay objetos\n");
-
-                finalVenta = true;
 
                 break;
             } else {
@@ -519,7 +517,7 @@ public class TiendaPokemon {
 
         for (Pokemon pokemon : this.stockPokemon.keySet()) {
             System.out.println(pokemon.getNombre() + " lvl." + pokemon.getNivel() +
-                    " Precio: " + this.stockPokemon.get(pokemon));
+                    " - Precio: " + this.stockPokemon.get(pokemon));
         }
 
         System.out.println();

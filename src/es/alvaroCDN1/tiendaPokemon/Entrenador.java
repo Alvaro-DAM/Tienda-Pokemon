@@ -14,14 +14,15 @@ import java.util.*;
  * Clase que representar un 'Entrenador Pokemon'
  */
 public class Entrenador {
+    // Articulo = objeto a guardar, Integer = cantidad del objeto
     private HashMap<Articulo, Integer> bolsilloPocion;
     private HashMap<Articulo, Integer> bolsilloMedicina;
     private HashMap<Articulo, Integer> bolsilloPokeball;
 
-    private final int CAPACIDAD_MAX_MOCHILA = 42;
+    private static final int CAPACIDAD_MAX_MOCHILA = 42;
+    public static final int MAX_EQUIPO_POKEMON = 3;
+
     private int monedero;
-    private int next; // Comprueba la siguiente posicion diponible en el equipo de Pokemon
-    public final int MAX_EQUIPO_POKEMON = 3;
 
     private ArrayList<Pokemon> equipoPokemon;
 
@@ -37,29 +38,61 @@ public class Entrenador {
         this.monedero = 900000;
 
         this.equipoPokemon = new ArrayList<>();
-        this.next = 0;
     }
 
+    /**
+     * Devuelve el nombre del entrenador
+     *
+     * @return El nombre del entrenador
+     */
     public String getNombre() {
         return this.nombre;
     }
 
+    /**
+     * Devuelve el dinero que el entrenador tiene almacenado en su 'monedero'
+     *
+     * @return La cantidad de dinero que el entrenador tiene guarado
+     */
     public int getMonedero() {
         return this.monedero;
     }
 
+    /**
+     * Devuelve la cantidad de una pocion
+     *
+     * @param pocion La pocion de la cual queremos cosultar sus unidades
+     * @return La cantidad de una pocion
+     */
     public int getCantidadPocion(Pocion pocion) {
         return this.bolsilloPocion.get(pocion);
     }
 
+    /**
+     * Devuelve la cantidad de una medicina
+     *
+     * @param medicina La medicina de la cual queremos cosultar sus unidades
+     * @return La cantidad de una medicina
+     */
     public int getCantidadMedicina(Medicina medicina) {
         return this.bolsilloMedicina.get(medicina);
     }
 
+    /**
+     * Devuelve la cantidad de una pokeball
+     *
+     * @param pokeBall La pokeball de la cual queremos cosultar sus unidades
+     * @return La cantidad de una pokeball
+     */
     public int getCantidadPokeball(PokeBall pokeBall) {
         return this.bolsilloPokeball.get(pokeBall);
     }
 
+    /**
+     * Devuelve la cantidad total de objetos almacenados en la mochila
+     *
+     * @return La cantidad total de objetos almacenados
+     */
     public int getCantidadTotalObjetos() {
         int cantidad = 0;
 
@@ -76,18 +109,41 @@ public class Entrenador {
         return cantidad;
     }
 
+    /**
+     * Anade dinero a la cantidad actual almacenada en el monedero
+     *
+     * @param dinero La cantidad de dinero que deseamos anadir
+     */
     public void setMonedero(int dinero) {
         this.monedero += dinero;
     }
 
+    /**
+     * Comprueba si el objeto pasado es una pocion
+     *
+     * @param objeto El objeto del cual queremos comprobarlo
+     * @return <code>true</code> si es una pocion y <code>false</code> si no
+     */
     public boolean comprobarSiPocion(Articulo objeto) {
         return objeto instanceof Pocion;
     }
 
+    /**
+     * Comprueba si el objeto pasado es una medicina
+     *
+     * @param objeto El objeto del cual queremos comprobarlo
+     * @return <code>true</code> si es una medicina y <code>false</code> si no
+     */
     public boolean comprobarSiMedicina(Articulo objeto) {
         return objeto instanceof Medicina;
     }
 
+    /**
+     * Comprueba si el objeto pasado es una pokeball
+     *
+     * @param objeto El objeto del cual queremos comprobarlo
+     * @return <code>true</code> si es una pokeball y <code>false</code> si no
+     */
     public boolean comprobarSiPokeball(Articulo objeto) {
         return objeto instanceof PokeBall;
     }
@@ -185,6 +241,11 @@ public class Entrenador {
         }
     }
 
+    /**
+     * Comprueba si la mochila tiene una cantidad de objetos igual a su limite
+     *
+     * @return <code>true</code> si se ha alcanzado el limite de objeto y <code>false</code> si no
+     */
     public boolean mochilaLlena() {
         return getCantidadTotalObjetos() >= CAPACIDAD_MAX_MOCHILA;
     }
@@ -231,13 +292,9 @@ public class Entrenador {
      * Lista todos los objetos de todos los bolsillos
      */
     public String listarObjetos() {
-        StringBuilder listaObjetos = new StringBuilder();
-
-        listaObjetos.append(listarPociones());
-        listaObjetos.append(listarMedicinas());
-        listaObjetos.append(listarPokeBalls());
-
-        return listaObjetos.toString();
+        return listarPociones() +
+                listarMedicinas() +
+                listarPokeBalls();
     }
 
     /**
@@ -349,6 +406,9 @@ public class Entrenador {
         }
     }
 
+    /**
+     * Permite revisar los pokemons actuales en el equipo, asi como consultar sus 'stats' (detalles)
+     */
     public void revisarEquipoPokemon() {
         boolean terminarRevision = false;
         boolean pokemonCorrecto = false;
@@ -367,26 +427,29 @@ public class Entrenador {
 
                     System.out.println("(Si desea obtener ayuda escriba 'ayuda')");
 
-                    try {
-                        input = sc.nextLine();
+                    input = sc.nextLine();
 
-                        if (input.equalsIgnoreCase("nada") || input.equalsIgnoreCase("salir")) {
-                            break;
-                        } else if (input.equalsIgnoreCase("ayuda")) {
-                            System.out.println("Para consultar los datos de un pokemon," +
-                                    " simplemente escriba su nombre.");
-                            System.out.println("Si no desea seguir consultando, escriba 'salir'.\n");
-                        } else {
+                    if (input.equalsIgnoreCase("salir")) {
+                        terminarRevision = true;
+
+                        break;
+                    } else if (input.equalsIgnoreCase("ayuda")) {
+                        System.out.println("Para consultar los datos de un pokemon," +
+                                " simplemente escriba su nombre.");
+                        System.out.println("Si no desea seguir consultando, escriba 'salir'.\n");
+                    } else {
+                        try {
                             for (Pokemon pokemonAComparar : this.equipoPokemon) {
                                 if (input.equalsIgnoreCase(pokemonAComparar.getNombre())) {
                                     pokemon = pokemonAComparar;
                                     pokemonCorrecto = true;
                                 }
                             }
+                        } catch (ArrayIndexOutOfBoundsException | NullPointerException e) {
+                            System.out.println("El pokemon que buscas no esta. Selecciona otro pokemon.\n");
                         }
-                    } catch (ArrayIndexOutOfBoundsException | NullPointerException e) {
-                        System.out.println("El pokemon que buscas no esta. Selecciona otro pokemon.\n");
                     }
+
                 } while (!pokemonCorrecto);
 
                 if (pokemon != null) {
@@ -405,13 +468,17 @@ public class Entrenador {
         }
     }
 
+    /**
+     * Anade un pokemon al equipo pokemon del entrenador
+     *
+     * @param pokemon El pokemon que deseamos anadir
+     * @return <code>true</code> si el pokemon si ha anadido correctamente y <code>false</code> si no
+     */
     public boolean anadirPokemon(Pokemon pokemon) {
         boolean anadido = false;
 
-        if (next < MAX_EQUIPO_POKEMON) {
+        if (this.equipoPokemon.size() < MAX_EQUIPO_POKEMON) {
             this.equipoPokemon.add(pokemon);
-
-            this.next++;
 
             anadido = true;
         }
@@ -419,6 +486,9 @@ public class Entrenador {
         return anadido;
     }
 
+    /**
+     * Sub-menu que permite revisar los detalles de un objeto almacenado en la mochila
+     */
     private void detallesObjeto() {
         String nombreObjeto;
 
@@ -447,6 +517,9 @@ public class Entrenador {
         }
     }
 
+    /**
+     * Sub-menu que permite deshacerse de un objeto almacenado en la mochila
+     */
     private void tirarObjeto() {
         String nombreObjeto;
 
