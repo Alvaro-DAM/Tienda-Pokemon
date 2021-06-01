@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="/Tienda-Pokemon/etc"/>
+	<classpathentry kind="src" path="/Tienda-Pokemon/src"/>
+	<classpathentry kind="lib" path="/Tienda-Pokemon/lib/log4j-api-2.14.1.jar"/>
+	<classpathentry kind="lib" path="/Tienda-Pokemon/lib/log4j-core-2.14.1.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
