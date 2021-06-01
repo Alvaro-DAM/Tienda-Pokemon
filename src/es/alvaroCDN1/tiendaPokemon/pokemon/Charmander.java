@@ -13,9 +13,11 @@ public class Charmander extends TipoFuego {
 
     /**
      * Constructor de la clase Charmander
+     *
+     * @param nivel El nivel al que deseamos que este
      */
-    public Charmander() {
-        super("Charmander", 5);
+    public Charmander(int nivel) {
+        super("Charmander", nivel);
 
         this.peso = 8.5;
         this.altura = 0.6;
@@ -35,11 +37,9 @@ public class Charmander extends TipoFuego {
         descripcion.append("Nombre: " + getNombre() + '\n');
         descripcion.append("Entrenador original: " + getEntrenadorOriginal() + '\n');
         descripcion.append("Lvl: " + getNivel() + '\n');
-        descripcion.append("Tipo: " + getTipo() + ' ');
-        descripcion.append(" (Debil contra: " + Arrays.toString(getDebilA()) + ", Fuerte contra: " +
-                Arrays.toString(getFuerteContra()) + ")\n");
+        descripcion.append(super.toString());
         descripcion.append("Habilidad: " + getHabilidad() + '\n');
-        descripcion.append("Peso: " + this.peso + ", Altura: " + this.altura + '\n');
+        descripcion.append("Peso: " + this.peso + "Kg, Altura: " + this.altura + "m\n");
         descripcion.append("Movimientos: " + '\n');
         descripcion.append('\t' + Arrays.toString(getMovimientos()) + '\n');
 

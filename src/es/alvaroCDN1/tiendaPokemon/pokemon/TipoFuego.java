@@ -3,14 +3,14 @@ package es.alvaroCDN1.tiendaPokemon.pokemon;
 import java.util.Arrays;
 
 /**
- * Clase que representa a los pokemo nde tipo fuego
+ * Clase que representa a los pokemon de tipo fuego
  */
 public class TipoFuego extends Pokemon {
     private final String[] debilA = {"AGUA, TIERRA"};
     private final String[] fuerteContra = {"PLANTA, ACERO"};
 
     /**
-     * Constructor de la clase TipoFUego
+     * Constructor de la clase TipoFuego
      *
      * @param nombre El nombre del pokemon que vamos a crear
      * @param nivel  El nivel al cual deseamos que este

@@ -26,7 +26,7 @@ public class TiendaPokemonMain {
         Scanner sc = new Scanner(System.in);
         String nombreEntrenador;
 
-        System.out.println("Bienvenido a la tienda pokemon. Â¿Como se llama?");
+        System.out.println("Bienvenido a la tienda pokemon. ¿Como se llama?");
 
         do {
             nombreEntrenador = sc.nextLine();

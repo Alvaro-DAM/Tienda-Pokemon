@@ -8,8 +8,10 @@ import es.alvaroCDN1.tiendaPokemon.excepciones.DineroInsuficienteException;
 import es.alvaroCDN1.tiendaPokemon.excepciones.NoExisteArticuloException;
 import es.alvaroCDN1.tiendaPokemon.excepciones.NoExistePokemonException;
 import es.alvaroCDN1.tiendaPokemon.pokemon.Charmander;
+import es.alvaroCDN1.tiendaPokemon.pokemon.Litten;
 import es.alvaroCDN1.tiendaPokemon.pokemon.Pokemon;
 import es.alvaroCDN1.tiendaPokemon.articulos.Articulo;
+import es.alvaroCDN1.tiendaPokemon.pokemon.Totodile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -670,13 +672,21 @@ public class TiendaPokemon {
         PokeBall lujoBall = new PokeBall("Lujo Ball", "Una pokeball para una ocasion especial.",
                 1000, 1);
 
-        Charmander charmander = new Charmander();
+        Charmander charmander = new Charmander(5);
+        Litten litten = new Litten(4);
+        Totodile totodile = new Totodile(10);
+        totodile.setMovimientos("Furia");
+
+        Totodile totodile2 = new Totodile(4);
 
         this.stock.put(revivir, 10);
         this.stock.put(superPocion, 15);
         this.stock.put(lujoBall, 40);
 
         this.stockPokemon.put(charmander, 1000);
+        this.stockPokemon.put(litten, 2000);
+        this.stockPokemon.put(totodile, 3000);
+        this.stockPokemon.put(totodile2, 650);
 
         logger.info("Se ha rellenado el stock.");
     }

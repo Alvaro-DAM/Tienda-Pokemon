@@ -113,7 +113,7 @@ public class Pokemon {
      *
      * @param movimiento El movimiento que deseamos anadir
      */
-    protected void setMovimientos(String movimiento) {
+    public void setMovimientos(String movimiento) {
         try {
             this.movimientos[next] = movimiento;
             this.next++;
