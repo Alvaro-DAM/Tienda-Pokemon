@@ -14,4 +14,4 @@ Si desea hacerlo desde la linea de comandos puede seguir los siguientes pasos:
 - Primero habrá que localizar los ficheros **log4j-core-2.14.1.jar** y **log4j-api-2.14.1.jar** e
 incorporarlos en el CLASSPATH. En este caso se encuentran en la carpeta **lib**.
 - Para compilarlos se usa el comando: **javac –d** (Donde queremos guardar las clases compiladas) **-cp lib/log4j-core-2.14.1.jar:lib/log4j-api-2.14.1.jar** (Sin parentesis, los ficheros que deseamos compilar)
--Para ejecutarlo: ** java -cp .:lib/log4j-core-2.14.1.jar:lib/log4j-api-2.14.1.jar TiendaPokemonMain**
+- Para ejecutarlo: ** java -cp .:lib/log4j-core-2.14.1.jar:lib/log4j-api-2.14.1.jar TiendaPokemonMain**
