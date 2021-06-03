@@ -473,9 +473,7 @@ public class Entrenador {
                             pokemon = obtenerPokemon(input);
 
                             pokemonCorrecto = true;
-
-                            System.out.println(pokemon);
-
+                            
                             logger.info("Se ha consultado los detalles del pokemon: " + pokemon.getNombre());
                         } catch (ArrayIndexOutOfBoundsException | NullPointerException |
                                 NoExistePokemonException e) {
